@@ -1,0 +1,20 @@
+body {
+    margin: 20px;
+}
+
+.chat {
+    background: aliceblue;
+    padding: 20px;
+    border-radius: 20px;
+    display: inline-block;
+    margin: 20px;
+    transition: all 0.3s ease;
+}
+.chat:hover {
+    transform: translateY(5px);
+}
+.msgbox {
+    background-color: dodgerblue;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
