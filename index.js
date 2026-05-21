@@ -53,27 +53,28 @@ app.post("/chats", async (req, res, next) => {
   res.redirect("/chats");
 });
 
-app.get("/chats/:id", async (req, res, next) => {
+app.get("/chats/:id", asyncWrap(async (req, res, next) => {
   let { id } = req.params;
   let chats = await chat.findById(id);
   if (!chats) {
     next(new ExpressError(404, "chat not found"));
   }
   res.render("edit.ejs", { chats });
-});
+}));
 
-app.get("/chats/:id/edit", async (req, res) => {
-  try {
+app.get("/chats/:id/edit", asyncWrap(async (req, res) => {
     let { id } = req.params;
     let chats = await chat.findById(id);
     res.render("edit.ejs", { chats });
-  } catch (err) {
-    next(err);
-  }
-});
+}));
 
-app.put("/chats/:id", async (req, res) => {
-  try {
+function asyncWrap(fn) {
+    return function(req, res, next) {
+        fn(req, res, next).catch((err) => next(err));
+    };
+}
+
+app.put("/chats/:id", asyncWrap(async (req, res) => {
     let { id } = req.params;
     let { msg: newMsg } = req.body;
     let updatedChat = await chat.findByIdAndUpdate(
@@ -82,10 +83,7 @@ app.put("/chats/:id", async (req, res) => {
       { returnDocument: "after" },
     );
     res.redirect("/chats");
-  } catch (err) {
-    next(err);
-  }
-});
+}));
 
 app.delete("/chats/:id", async (req, res) => {
   try {
@@ -105,6 +103,14 @@ app.get("/", (req, res) => {
     res.send("sangita i love you");
   }
 });
+
+app.use((err, req, res, next) => {
+    console.log(err.name);
+    if(err.name === "ValidationError") {
+        console.log("this is an validation err, please follow rules");
+    }
+    next(err);
+}); 
 
 // err handling middleware
 app.use((err, req, res, next) => {
